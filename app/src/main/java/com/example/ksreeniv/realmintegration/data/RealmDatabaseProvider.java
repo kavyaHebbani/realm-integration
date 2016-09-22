@@ -29,53 +29,53 @@ public class RealmDatabaseProvider {
                                               .build());
     }
 
-    private Realm getDefaultInstance() {
+    private Realm getCurrentInstance() {
         if (mRealm == null) {
-            mRealm = getNewInstance();
+            mRealm = getDefaultInstance();
         }
         return mRealm;
     }
 
-    private Realm getNewInstance() {
+    private Realm getDefaultInstance() {
         return Realm.getDefaultInstance();
     }
 
     public <T extends RealmModel> boolean isObjectInDatabase(Class<T> classObject) {
-        Realm realm = getNewInstance();
+        Realm realm = getDefaultInstance();
         boolean dataStatus = (realm.where(classObject).count() > 0);
         realm.close();
         return dataStatus;
     }
 
     public <T extends RealmModel> void storeUpdateObject(List<T> object) {
-        Realm realm = getNewInstance();
+        Realm realm = getDefaultInstance();
         realm.executeTransaction(realm1 -> realm1.insertOrUpdate(object));
         realm.close();
     }
 
     public <T extends RealmModel> Observable<RealmResults<T>> getObjectAsync(Class<T> classObject) {
-        return getDefaultInstance().where(classObject)
+        return getCurrentInstance().where(classObject)
                                    .findAllAsync()
                                    .asObservable();
     }
 
     // Safe integration
     public <T extends RealmModel> List<T> getObjectCopy(Class<T> classObject) {
-        Realm realm = getNewInstance();
+        Realm realm = getDefaultInstance();
         List<T> list = realm.copyFromRealm(realm.where(classObject).findAll());
         realm.close();
         return list;
     }
 
     public <T extends RealmModel> void deleteObject(Class<T> classObject) {
-        Realm realm = getNewInstance();
+        Realm realm = getDefaultInstance();
         realm.executeTransaction(r -> r.delete(classObject));
         realm.close();
     }
 
     public void dispose() {
-        getDefaultInstance().removeAllChangeListeners();
-        getDefaultInstance().close();
+        getCurrentInstance().removeAllChangeListeners();
+        getCurrentInstance().close();
     }
 
     private byte[] getEncryptionKey() {
